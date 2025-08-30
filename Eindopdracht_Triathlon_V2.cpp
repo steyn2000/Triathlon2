@@ -3,9 +3,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <limits>  
+#include <limits>
 #include <algorithm>
 #include <map>
+#include <fstream>
 #include "Atleet.h"
 #include "Deelnemer.h"
 #include "Wedstrijd.h"
@@ -15,6 +16,140 @@ using namespace std;
 
 vector<Atleet> atleten;
 vector<Wedstrijd> wedstrijden;
+
+const string DATA_BESTAND = "triathlon_data.txt";
+
+void save_data()
+{
+    ofstream out(DATA_BESTAND);
+    if (!out) return;
+
+    out << atleten.size() << '\n';
+    for (const auto& a : atleten)
+    {
+        const Licentie& l = a.get_licentie();
+        out << a.get_voornaam() << '\n'
+            << a.get_achternaam() << '\n'
+            << a.get_geboortedatum() << '\n'
+            << a.get_geslacht() << '\n'
+            << l.get_nummer() << '\n'
+            << l.get_geldig_tot() << '\n'
+            << l.get_type() << '\n';
+    }
+
+    out << wedstrijden.size() << '\n';
+    for (const auto& w : wedstrijden)
+    {
+        out << w.get_naam() << '\n'
+            << w.get_datum() << '\n'
+            << w.get_is_nk() << '\n'
+            << w.get_met_wissels() << '\n';
+
+        const auto& ds = w.get_deelnemers();
+        out << ds.size() << '\n';
+        for (const auto& d : ds)
+        {
+            const Atleet& a = d.get_atleet();
+            const Licentie& l = a.get_licentie();
+            out << a.get_voornaam() << '\n'
+                << a.get_achternaam() << '\n'
+                << a.get_geboortedatum() << '\n'
+                << a.get_geslacht() << '\n'
+                << l.get_nummer() << '\n'
+                << l.get_geldig_tot() << '\n'
+                << l.get_type() << '\n';
+
+            out << d.get_tijd_zwem() << ' '
+                << d.get_tijd_fiets() << ' '
+                << d.get_tijd_loop() << ' '
+                << d.get_heeft_t1() << ' '
+                << d.get_t1() << ' '
+                << d.get_heeft_t2() << ' '
+                << d.get_t2() << '\n';
+        }
+    }
+}
+
+void load_data()
+{
+    ifstream in(DATA_BESTAND);
+    if (!in) return;
+
+    size_t n_atleten;
+    if (!(in >> n_atleten)) return;
+    in.ignore(numeric_limits<streamsize>::max(), '\n');
+    for (size_t i = 0; i < n_atleten; ++i)
+    {
+        string voornaam, achternaam, geboortedatum;
+        getline(in, voornaam);
+        getline(in, achternaam);
+        getline(in, geboortedatum);
+        char geslacht;
+        in >> geslacht;
+        in.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        int licnr;
+        string lic_geldig, lic_type;
+        in >> licnr;
+        in.ignore();
+        getline(in, lic_geldig);
+        getline(in, lic_type);
+
+        Atleet a(voornaam, achternaam, geboortedatum, geslacht);
+        a.set_licentie(Licentie(licnr, lic_geldig, lic_type));
+        atleten.push_back(a);
+    }
+
+    size_t n_wedstrijden;
+    in >> n_wedstrijden;
+    in.ignore(numeric_limits<streamsize>::max(), '\n');
+    for (size_t i = 0; i < n_wedstrijden; ++i)
+    {
+        string naam, datum;
+        getline(in, naam);
+        getline(in, datum);
+        int is_nk, met_wissels;
+        in >> is_nk >> met_wissels;
+        in.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        Wedstrijd w(naam, datum, is_nk != 0, met_wissels != 0);
+
+        size_t n_deelnemers;
+        in >> n_deelnemers;
+        in.ignore(numeric_limits<streamsize>::max(), '\n');
+        for (size_t j = 0; j < n_deelnemers; ++j)
+        {
+            string voornaam, achternaam, geboortedatum;
+            getline(in, voornaam);
+            getline(in, achternaam);
+            getline(in, geboortedatum);
+            char geslacht;
+            in >> geslacht;
+            in.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            int licnr;
+            string lic_geldig, lic_type;
+            in >> licnr;
+            in.ignore();
+            getline(in, lic_geldig);
+            getline(in, lic_type);
+
+            Atleet at(voornaam, achternaam, geboortedatum, geslacht);
+            at.set_licentie(Licentie(licnr, lic_geldig, lic_type));
+
+            int tz, tf, tl, h1, t1, h2, t2;
+            in >> tz >> tf >> tl >> h1 >> t1 >> h2 >> t2;
+            in.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            Deelnemer d(at, tz, tf, tl);
+            if (h1) d.set_t1(t1);
+            if (h2) d.set_t2(t2);
+            w.voeg_deelnemer_toe(d);
+        }
+
+        wedstrijden.push_back(w);
+    }
+}
 
 void print_welkom() {
     cout << "~~ Welkom bij het Triathlon organisatiesysteem! ~~\n";
@@ -62,7 +197,7 @@ int leeftijd_op_datum(const string& geboortedatum, const string& datum) {
     return leeftijd;
 }
 
-// categorieën volgens jouw eisen
+// categorieÃ«n volgens jouw eisen
 string categorie_van_leeftijd(int leeftijd) 
 {
     if (leeftijd < 13)       
@@ -283,6 +418,7 @@ void toon_uitslag_van_wedstrijd(const std::vector<Wedstrijd>& wedstrijden) {
 }
 
 int main() {
+    load_data();
     print_welkom();
 
     bool heeft_atleet = false;
@@ -477,8 +613,9 @@ int main() {
         }
     }
 
+    save_data();
     cout << "Tot ziens!\n";
-    return 0;   
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
