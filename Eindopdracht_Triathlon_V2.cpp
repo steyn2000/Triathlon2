@@ -257,9 +257,10 @@ void lijst_atleten(const vector<Atleet>& lijst)
 
     for (size_t i = 0; i < lijst.size(); ++i)
     {
+        const Licentie& lic = lijst[i].get_licentie();
         cout << "[" << i << "] "
-            << lijst[i].get_voornaam() << " " << lijst[i].get_achternaam() << " | Geb.datum: " << lijst[i].get_geboortedatum() << " | Geslacht: " 
-            << lijst[i].get_geslacht() << " | Licentie: " << lijst[i].get_licentie().get_type() << "\n";
+            << lijst[i].get_voornaam() << " " << lijst[i].get_achternaam() << " | Geb.datum: " << lijst[i].get_geboortedatum() << " | Geslacht: "
+            << lijst[i].get_geslacht() << " | Licentie: " << lic.get_type() << " (" << lic.get_nummer() << ")\n";
     }
 }
 
