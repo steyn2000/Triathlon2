@@ -25,47 +25,47 @@ void save_data()
     if (!bestand) return;
 
     bestand << atleten.size() << '\n';
-    for (const auto& atleten : atleten)
+    for (const auto& atleet : atleten)
     {
-        const Licentie& licentie = atleten.get_licentie();
-        bestand << atleten.get_voornaam() << '\n'
-            << atleten.get_achternaam() << '\n'
-            << atleten.get_geboortedatum() << '\n'
-            << atleten.get_geslacht() << '\n'
+        const Licentie& licentie = atleet.get_licentie();
+        bestand << atleet.get_voornaam() << '\n'
+            << atleet.get_achternaam() << '\n'
+            << atleet.get_geboortedatum() << '\n'
+            << atleet.get_geslacht() << '\n'
             << licentie.get_nummer() << '\n'
             << licentie.get_geldig_tot() << '\n'
             << licentie.get_type() << '\n';
     }
 
     bestand << wedstrijden.size() << '\n';
-    for (const auto& wedstrijden : wedstrijden)
+    for (const auto& wedstrijd : wedstrijden)
     {
-        bestand << wedstrijden.get_naam() << '\n'
-            << wedstrijden.get_datum() << '\n'
-            << wedstrijden.get_is_nk() << '\n'
-            << wedstrijden.get_met_wissels() << '\n';
+        bestand << wedstrijd.get_naam() << '\n'
+            << wedstrijd.get_datum() << '\n'
+            << wedstrijd.get_is_nk() << '\n'
+            << wedstrijd.get_met_wissels() << '\n';
 
-        const auto& ds = wedstrijden.get_deelnemers();
-        bestand << ds.size() << '\n';
-        for (const auto& d : ds)
+        const auto& deelnemers = wedstrijd.get_deelnemers();
+        bestand << deelnemers.size() << '\n';
+        for (const auto& deelnemer : deelnemers)
         {
-            const Atleet& a = d.get_atleet();
-            const Licentie& l = a.get_licentie();
-            bestand << a.get_voornaam() << '\n'
-                << a.get_achternaam() << '\n'
-                << a.get_geboortedatum() << '\n'
-                << a.get_geslacht() << '\n'
-                << l.get_nummer() << '\n'
-                << l.get_geldig_tot() << '\n'
-                << l.get_type() << '\n';
+            const Atleet& atleet = deelnemer.get_atleet();
+            const Licentie& licentie = atleet.get_licentie();
+            bestand << atleet.get_voornaam() << '\n'
+                << atleet.get_achternaam() << '\n'
+                << atleet.get_geboortedatum() << '\n'
+                << atleet.get_geslacht() << '\n'
+                << licentie.get_nummer() << '\n'
+                << licentie.get_geldig_tot() << '\n'
+                << licentie.get_type() << '\n';
 
-            bestand << d.get_tijd_zwem() << ' '
-                << d.get_tijd_fiets() << ' '
-                << d.get_tijd_loop() << ' '
-                << d.get_heeft_t1() << ' '
-                << d.get_t1() << ' '
-                << d.get_heeft_t2() << ' '
-                << d.get_t2() << '\n';
+            bestand << deelnemer.get_tijd_zwem() << ' '
+                << deelnemer.get_tijd_fiets() << ' '
+                << deelnemer.get_tijd_loop() << ' '
+                << deelnemer.get_heeft_wissel1() << ' '
+                << deelnemer.get_wisseltijd1() << ' '
+                << deelnemer.get_heeft_wissel2() << ' '
+                << deelnemer.get_wisseltijd2() << '\n';
         }
     }
 }
@@ -75,10 +75,10 @@ void load_data()
     ifstream in(DATA_BESTAND);
     if (!in) return;
 
-    size_t n_atleten;
-    if (!(in >> n_atleten)) return;
+    size_t aantal_atleten;
+    if (!(in >> aantal_atleten)) return;
     in.ignore(numeric_limits<streamsize>::max(), '\n');
-    for (size_t i = 0; i < n_atleten; ++i)
+    for (size_t i = 0; i < aantal_atleten; ++i)
     {
         string voornaam, achternaam, geboortedatum;
         getline(in, voornaam);
@@ -88,36 +88,36 @@ void load_data()
         in >> geslacht;
         in.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        int licnr;
-        string lic_geldig, lic_type;
-        in >> licnr;
+        int licentienummer;
+        string licentie_geldig_tot, licentie_type;
+        in >> licentienummer;
         in.ignore();
-        getline(in, lic_geldig);
-        getline(in, lic_type);
+        getline(in, licentie_geldig_tot);
+        getline(in, licentie_type);
 
-        Atleet a(voornaam, achternaam, geboortedatum, geslacht);
-        a.set_licentie(Licentie(licnr, lic_geldig, lic_type));
-        atleten.push_back(a);
+        Atleet nieuwe_atleet(voornaam, achternaam, geboortedatum, geslacht);
+        nieuwe_atleet.set_licentie(Licentie(licentienummer, licentie_geldig_tot, licentie_type));
+        atleten.push_back(nieuwe_atleet);
     }
 
-    size_t n_wedstrijden;
-    in >> n_wedstrijden;
+    size_t aantal_wedstrijden;
+    in >> aantal_wedstrijden;
     in.ignore(numeric_limits<streamsize>::max(), '\n');
-    for (size_t i = 0; i < n_wedstrijden; ++i)
+    for (size_t i = 0; i < aantal_wedstrijden; ++i)
     {
         string naam, datum;
         getline(in, naam);
         getline(in, datum);
-        int is_nk, met_wissels;
-        in >> is_nk >> met_wissels;
+        int is_nk_int, met_wissels_int;
+        in >> is_nk_int >> met_wissels_int;
         in.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        Wedstrijd w(naam, datum, is_nk != 0, met_wissels != 0);
+        Wedstrijd wedstrijd(naam, datum, is_nk_int != 0, met_wissels_int != 0);
 
-        size_t n_deelnemers;
-        in >> n_deelnemers;
+        size_t aantal_deelnemers;
+        in >> aantal_deelnemers;
         in.ignore(numeric_limits<streamsize>::max(), '\n');
-        for (size_t j = 0; j < n_deelnemers; ++j)
+        for (size_t j = 0; j < aantal_deelnemers; ++j)
         {
             string voornaam, achternaam, geboortedatum;
             getline(in, voornaam);
@@ -127,27 +127,27 @@ void load_data()
             in >> geslacht;
             in.ignore(numeric_limits<streamsize>::max(), '\n');
 
-            int licnr;
-            string lic_geldig, lic_type;
-            in >> licnr;
+            int licentienummer;
+            string licentie_geldig_tot, licentie_type;
+            in >> licentienummer;
             in.ignore();
-            getline(in, lic_geldig);
-            getline(in, lic_type);
+            getline(in, licentie_geldig_tot);
+            getline(in, licentie_type);
 
-            Atleet at(voornaam, achternaam, geboortedatum, geslacht);
-            at.set_licentie(Licentie(licnr, lic_geldig, lic_type));
+            Atleet atleet(voornaam, achternaam, geboortedatum, geslacht);
+            atleet.set_licentie(Licentie(licentienummer, licentie_geldig_tot, licentie_type));
 
-            int tz, tf, tl, h1, t1, h2, t2;
-            in >> tz >> tf >> tl >> h1 >> t1 >> h2 >> t2;
+            int tijd_zwem, tijd_fiets, tijd_loop, heeft_wissel1, tijd_wissel1, heeft_wissel2, tijd_wissel2;
+            in >> tijd_zwem >> tijd_fiets >> tijd_loop >> heeft_wissel1 >> tijd_wissel1 >> heeft_wissel2 >> tijd_wissel2;
             in.ignore(numeric_limits<streamsize>::max(), '\n');
 
-            Deelnemer d(at, tz, tf, tl);
-            if (h1) d.set_t1(t1);
-            if (h2) d.set_t2(t2);
-            w.voeg_deelnemer_toe(d);
+            Deelnemer deelnemer(atleet, tijd_zwem, tijd_fiets, tijd_loop);
+            if (heeft_wissel1) deelnemer.set_wisseltijd1(tijd_wissel1);
+            if (heeft_wissel2) deelnemer.set_wisseltijd2(tijd_wissel2);
+            wedstrijd.voeg_deelnemer_toe(deelnemer);
         }
 
-        wedstrijden.push_back(w);
+        wedstrijden.push_back(wedstrijd);
     }
 }
 
@@ -184,12 +184,12 @@ static int get_jaar(const string& datum)
     return stoi(datum.substr(6, 4)); 
 }
 
-int leeftijd_op_datum(const string& geboortedatum, const string& datum) 
+int leeftijd_op_datum(const string& geboortedatum, const string& datum)
 {
     int geboortedatum_dag = get_dag(geboortedatum), geboortedatum_maand = get_maand(geboortedatum), geboortedatum_jaar = get_jaar(geboortedatum);
-    int wd_d = get_dag(datum), wd_m = get_maand(datum), wd_j = get_jaar(datum);
-    int leeftijd = wd_j - geboortedatum_jaar;
-    if (wd_m < geboortedatum_maand || (wd_m == geboortedatum_maand && wd_d < geboortedatum_dag)) leeftijd -= 1; // verjaardag nog niet geweest
+    int datum_dag = get_dag(datum), datum_maand = get_maand(datum), datum_jaar = get_jaar(datum);
+    int leeftijd = datum_jaar - geboortedatum_jaar;
+    if (datum_maand < geboortedatum_maand || (datum_maand == geboortedatum_maand && datum_dag < geboortedatum_dag)) leeftijd -= 1; // verjaardag nog niet geweest
     return leeftijd;
 }
 
@@ -217,47 +217,47 @@ string categorie_van(const Atleet& atleet, const string& wedstrijddatum)
     return categorie_van_leeftijd(leeftijd_op_datum(atleet.get_geboortedatum(), wedstrijddatum));
 }
 
-int kies_index(int max_index, const string& prompt) 
+int kies_index(int max_index, const string& prompt)
 {
-    int i;
+    int index;
     cout << prompt;
-    cin >> i;
+    cin >> index;
 
-    if (i < 0 || i >= max_index)
+    if (index < 0 || index >= max_index)
     {
         return -1;
     }
-    return i;
+    return index;
 }
 
-void lijst_atleten(const vector<Atleet>& lijst)
+void lijst_atleten(const vector<Atleet>& lijst_atleten)
 {
-    if (lijst.empty())
+    if (lijst_atleten.empty())
     {
         cout << "Geen atleten.\n";
         return;
     }
 
-    for (size_t i = 0; i < lijst.size(); ++i)
+    for (size_t i = 0; i < lijst_atleten.size(); ++i)
     {
-        const Licentie& lic = lijst[i].get_licentie();
+        const Licentie& licentie = lijst_atleten[i].get_licentie();
         cout << "[" << i << "] "
-            << lijst[i].get_voornaam() << " " << lijst[i].get_achternaam() << " | Geb.datum: " << lijst[i].get_geboortedatum() << " | Geslacht: "
-            << lijst[i].get_geslacht() << " | Licentie: " << lic.get_type() << " (" << lic.get_nummer() << ")\n";
+            << lijst_atleten[i].get_voornaam() << " " << lijst_atleten[i].get_achternaam() << " | Geb.datum: " << lijst_atleten[i].get_geboortedatum() << " | Geslacht: "
+            << lijst_atleten[i].get_geslacht() << " | Licentie: " << licentie.get_type() << " (" << licentie.get_nummer() << ")\n";
     }
 }
 
-void lijst_wedstrijden(const vector<Wedstrijd>& lijst)
+void lijst_wedstrijden(const vector<Wedstrijd>& lijst_wedstrijden)
 {
-    if (lijst.empty())
+    if (lijst_wedstrijden.empty())
     {
         cout << "Geen wedstrijden.\n";
         return;
     }
 
-    for (size_t i = 0; i < lijst.size(); ++i)
+    for (size_t i = 0; i < lijst_wedstrijden.size(); ++i)
     {
-        cout << "[" << i << "] " << lijst[i].get_naam() << " (" << lijst[i].get_datum() << ")\n";
+        cout << "[" << i << "] " << lijst_wedstrijden[i].get_naam() << " (" << lijst_wedstrijden[i].get_datum() << ")\n";
     }
 }
 
@@ -278,12 +278,12 @@ Atleet invoer_atleet()
     return Atleet(voornaam, achternaam, geboortedatum, geslacht);
 }
 // functie voor het formatteren van de tijd
-string format_tijd(int seconden) 
+string format_tijd(int seconden)
 {
     int uren = seconden / 3600;
     int minuten = (seconden % 3600) / 60;
-    int sec = seconden % 60;
-    return to_string(uren) + "u " + to_string(minuten) + "m " + to_string(sec) + "s";
+    int resterende_seconden = seconden % 60;
+    return to_string(uren) + "u " + to_string(minuten) + "m " + to_string(resterende_seconden) + "s";
 }
 
 // Functie voor het tonen van de uitslagen
@@ -303,7 +303,7 @@ void toon_uitslag_van_wedstrijd(const vector<Wedstrijd>& wedstrijden)
         return;
     }
 
-    const Wedstrijd& wedstrijd= wedstrijden[wedstrijd_index];
+    const Wedstrijd& wedstrijd = wedstrijden[wedstrijd_index];
     auto uitslag = wedstrijd.deelnemer_lijst_gesorteerd(); // gesorteerd op totale tijd
     if (uitslag.empty()) 
     {
@@ -317,22 +317,22 @@ void toon_uitslag_van_wedstrijd(const vector<Wedstrijd>& wedstrijden)
     cout << "\nUitslag: " << wedstrijd.get_naam() << " (" << wedstrijd.get_datum() << ")\n";
     cout << "Pos  Naam                     Zwem       ";
 
-    if (met_wissels) 
+    if (met_wissels)
         cout << "T1         ";
-        cout << "Fiets      ";
+    cout << "Fiets      ";
 
     if (met_wissels)
         cout << "T2         ";
-        cout << "Loop       Totaal\n";
-        cout << "---- -----------------------  ----------  ";
+    cout << "Loop       Totaal\n";
+    cout << "---- -----------------------  ----------  ";
 
     if (met_wissels)
         cout << "----------  ";
-        cout << "----------  ";
+    cout << "----------  ";
 
     if (met_wissels)
         cout << "----------  ";
-        cout << "----------  ----------\n";
+    cout << "----------  ----------\n";
 
     for (size_t i = 0; i < uitslag.size(); ++i) 
     {
@@ -350,84 +350,84 @@ void toon_uitslag_van_wedstrijd(const vector<Wedstrijd>& wedstrijden)
             cout << "  ";
             cout << naam;
 
-        if (naam.size() < 23) 
+        if (naam.size() < 23)
             cout << string(23 - naam.size(), ' ');
-            cout << "    " << format_tijd(deelnemer.get_tijd_zwem());
+        cout << "    " << format_tijd(deelnemer.get_tijd_zwem());
 
-        if (met_wissels) 
-            cout << "    " << format_tijd(deelnemer.get_t1());
-            cout << "    " << format_tijd(deelnemer.get_tijd_fiets());
+        if (met_wissels)
+            cout << "    " << format_tijd(deelnemer.get_wisseltijd1());
+        cout << "    " << format_tijd(deelnemer.get_tijd_fiets());
 
-        if (met_wissels) 
-            cout << "    " << format_tijd(deelnemer.get_t2());
-            cout << "    " << format_tijd(deelnemer.get_tijd_loop());
-            cout << "    " << format_tijd(deelnemer.totale_tijd()) << "\n";
+        if (met_wissels)
+            cout << "    " << format_tijd(deelnemer.get_wisseltijd2());
+        cout << "    " << format_tijd(deelnemer.get_tijd_loop());
+        cout << "    " << format_tijd(deelnemer.totale_tijd()) << "\n";
     }
 
     // --------- PER CATEGORIE ---------
     // groepeert deelnemers per categorie
     map<string, vector<Deelnemer>> groepen;
-    for (const auto& deelnemer : uitslag) 
+    for (const auto& deelnemer : uitslag)
     {
         const Atleet& atleet = deelnemer.get_atleet();
-        string cat = categorie_van(atleet, wedstrijd.get_datum());
-        groepen[cat].push_back(deelnemer);
+        string categorie = categorie_van(atleet, wedstrijd.get_datum());
+        groepen[categorie].push_back(deelnemer);
     }
 
-    vector<string> volgorde = { "<13","13-17","18-35","36-45","46-55","56-65","66+" };
+    vector<string> categorie_volgorde = { "<13","13-17","18-35","36-45","46-55","56-65","66+" };
 
-    for (const auto& cat : volgorde) 
+    for (const auto& categorie : categorie_volgorde)
     {
-        auto it = groepen.find(cat);
+        auto it = groepen.find(categorie);
         if (it == groepen.end() || it->second.empty()) continue;
 
-        auto& lijst = it->second; // al gesorteerd door kopie uit 'uitslag', maar safe nog eens:
-        sort(lijst.begin(), lijst.end(),
+        auto& categorie_deelnemers = it->second; // al gesorteerd door kopie uit 'uitslag', maar safe nog eens:
+        sort(categorie_deelnemers.begin(), categorie_deelnemers.end(),
                   [](const Deelnemer& e1, const Deelnemer& e2){ return e1.totale_tijd() < e2.totale_tijd(); });
 
-        cout << "\n[" << cat << "]\n";
+        cout << "\n[" << categorie << "]\n";
         cout << "Pos  Naam                             Zwem       ";
 
-        if (met_wissels) 
+        if (met_wissels)
             cout << "T1         ";
-            cout << "Fiets      ";
-        
-        if (met_wissels) 
-            cout << "T2         ";
-            cout << "Loop       Totaal\n";
-            cout << "---- --------------------------------  ---------  ";
+        cout << "Fiets      ";
 
-        if (met_wissels) 
-            cout << "---------  ";
-            cout << "---------  ";
+        if (met_wissels)
+            cout << "T2         ";
+        cout << "Loop       Totaal\n";
+        cout << "---- --------------------------------  ---------  ";
 
         if (met_wissels)
             cout << "---------  ";
-            cout << "---------  ---------\n";
+        cout << "---------  ";
 
-        for (size_t i = 0; i < lijst.size(); ++i) {
-            const Deelnemer& deelnemer = lijst[i];
+        if (met_wissels)
+            cout << "---------  ";
+        cout << "---------  ---------\n";
+
+        for (size_t i = 0; i < categorie_deelnemers.size(); ++i) {
+            const Deelnemer& deelnemer = categorie_deelnemers[i];
             const Atleet& atleet = deelnemer.get_atleet();
             string naam = atleet.get_voornaam() + " " + atleet.get_achternaam();
             if (naam.size() > 32) naam = naam.substr(0, 32);
-                cout << (i + 1);
+            cout << (i + 1);
 
-            if (i + 1 < 10) 
+            if (i + 1 < 10)
                 cout << "   ";
-            else 
+            else
                 cout << "  ";
-                cout << naam;
+            cout << naam;
 
             if (naam.size() < 32) cout << string(32 - naam.size(), ' ');
             cout << "  " << format_tijd(deelnemer.get_tijd_zwem());
 
             if (met_wissels)
-                cout << "   " << format_tijd(deelnemer.get_t1());
-                cout << "   " << format_tijd(deelnemer.get_tijd_fiets());
+                cout << "   " << format_tijd(deelnemer.get_wisseltijd1());
+            cout << "   " << format_tijd(deelnemer.get_tijd_fiets());
             if (met_wissels)
-                cout << "   " << format_tijd(deelnemer.get_t2());
-                cout << "   " << format_tijd(deelnemer.get_tijd_loop());
-                cout << "   " << format_tijd(deelnemer.totale_tijd()) << "\n";
+                cout << "   " << format_tijd(deelnemer.get_wisseltijd2());
+            cout << "   " << format_tijd(deelnemer.get_tijd_loop());
+            cout << "   " << format_tijd(deelnemer.totale_tijd()) << "\n";
         }
     }
     cout << endl;
@@ -437,9 +437,6 @@ int main() {
     load_data();
     print_welkom();
 
-    bool heeft_atleet = false;
-    Atleet laatst_atleet;
-
     bool doorgaan = true;
     while (doorgaan) 
     {
@@ -447,10 +444,10 @@ int main() {
         int keuze;
         cin >> keuze;
 
-        if (keuze == 1) 
+        if (keuze == 1)
         {
             string naam, datum;
-            int nk, wissels;
+            int is_nk_keuze, wissels_keuze;
 
             cout << "Naam wedstrijd: ";
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -460,14 +457,14 @@ int main() {
             getline(cin, datum);
 
             cout << "Is NK? (0/1): ";
-            cin >> nk;
+            cin >> is_nk_keuze;
 
             cout << "Wisseltijden registreren? (0/1): ";
-            cin >> wissels;
+            cin >> wissels_keuze;
 
             // nieuw object maken en toevoegen aan de vector
-            Wedstrijd nieuw(naam, datum, nk != 0, wissels != 0);
-            wedstrijden.push_back(nieuw);
+            Wedstrijd nieuwe_wedstrijd(naam, datum, is_nk_keuze != 0, wissels_keuze != 0);
+            wedstrijden.push_back(nieuwe_wedstrijd);
 
             cout << "Wedstrijd aangemaakt met index ["
                 << (int)wedstrijden.size() - 1 << "].\n";
@@ -518,38 +515,38 @@ int main() {
                     else 
                     {
                         // NK-licentiecontrole
-                        if (wedstrijden[wedstrijd_index].get_is_nk()) 
+                        if (wedstrijden[wedstrijd_index].get_is_nk())
                         {
-                            string lic_type = atleten[atleet_index].get_licentie().get_type();
-                            if (lic_type != "Wedstrijdlicentie") {
+                            string licentie_type = atleten[atleet_index].get_licentie().get_type();
+                            if (licentie_type != "Wedstrijdlicentie") {
                                 cout << "Deze wedstrijd is een NK, atleet heeft geen Wedstrijdlicentie.\n";
                                 cout << "Koppel eerst een Wedstrijdlicentie via optie 7 en probeer opnieuw.\n";
                                 continue; // ga terug naar het hoofdmenu (while-loop)
                             }
                         }
 
-                        int tz, tf, tl;
+                        int tijd_zwem, tijd_fiets, tijd_loop;
                         cout << "Tijden in seconden.\n";
-                        cout << "Zwem: "; 
-                        cin >> tz;
+                        cout << "Zwem: ";
+                        cin >> tijd_zwem;
                         cout << "Fiets: ";
-                        cin >> tf;
+                        cin >> tijd_fiets;
                         cout << "Loop: ";
-                        cin >> tl;
+                        cin >> tijd_loop;
 
-                        if (wedstrijden[wedstrijd_index].get_met_wissels()) 
+                        if (wedstrijden[wedstrijd_index].get_met_wissels())
                         {
-                            int tijd_t1, tijd_t2;
+                            int tijd_wissel1, tijd_wissel2;
                             cout << "T1 (wissel zwemmen->fietsen, sec): ";
-                            cin >> tijd_t1;
+                            cin >> tijd_wissel1;
                             cout << "T2 (wissel fietsen->lopen, sec):   ";
-                            cin >> tijd_t2;
+                            cin >> tijd_wissel2;
 
-                            Deelnemer deelnemer(atleten[atleet_index], tz, tf, tl, tijd_t1, tijd_t2);
+                            Deelnemer deelnemer(atleten[atleet_index], tijd_zwem, tijd_fiets, tijd_loop, tijd_wissel1, tijd_wissel2);
                             wedstrijden[wedstrijd_index].voeg_deelnemer_toe(deelnemer);
                         }
                         else {
-                            Deelnemer deelnemer(atleten[atleet_index], tz, tf, tl);
+                            Deelnemer deelnemer(atleten[atleet_index], tijd_zwem, tijd_fiets, tijd_loop);
                             wedstrijden[wedstrijd_index].voeg_deelnemer_toe(deelnemer);
                         }
 
@@ -594,10 +591,10 @@ int main() {
                     cout << "Kies licentie (1 = Dag, 2 = Trainings, 3 = Wedstrijd): ";
                     cin >> keuze_licentie;
 
-                    int nummer;
+                    int licentienummer;
                     string geldig_tot;
                     cout << "Licentienummer: ";
-                    cin >> nummer;
+                    cin >> licentienummer;
                     cout << "Geldig tot (bv. 31-12-2024): ";
                     cin >> geldig_tot;
 
@@ -605,7 +602,7 @@ int main() {
                     if (keuze_licentie == 2) licentie_type = "Trainingslicentie";
                     else if (keuze_licentie == 3) licentie_type = "Wedstrijdlicentie";
 
-                    Licentie licentie(nummer, geldig_tot, licentie_type);
+                    Licentie licentie(licentienummer, geldig_tot, licentie_type);
                     atleten[atleet_index].set_licentie(licentie);
                     cout << "Licentie gekoppeld aan atleet [" << atleet_index << "].\n";
                 }
