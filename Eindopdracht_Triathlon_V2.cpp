@@ -34,7 +34,15 @@ void save_data()
             << atleet.get_geslacht() << '\n'
             << licentie.get_nummer() << '\n'
             << licentie.get_geldig_tot() << '\n'
-            << licentie.get_type() << '\n';
+            << licentie.get_type() << '\n'
+            << licentie.get_vereniging() << '\n';
+
+        const auto& doping_controles = licentie.get_doping_controles();
+        bestand << doping_controles.size() << '\n';
+        for (const auto& controle : doping_controles)
+        {
+            bestand << controle.datum << '\n' << controle.doping_geconstateerd << '\n';
+        }
     }
 
     bestand << wedstrijden.size() << '\n';
@@ -57,7 +65,15 @@ void save_data()
                 << atleet.get_geslacht() << '\n'
                 << licentie.get_nummer() << '\n'
                 << licentie.get_geldig_tot() << '\n'
-                << licentie.get_type() << '\n';
+                << licentie.get_type() << '\n'
+                << licentie.get_vereniging() << '\n';
+
+            const auto& doping_controles = licentie.get_doping_controles();
+            bestand << doping_controles.size() << '\n';
+            for (const auto& controle : doping_controles)
+            {
+                bestand << controle.datum << '\n' << controle.doping_geconstateerd << '\n';
+            }
 
             bestand << deelnemer.get_tijd_zwem() << ' '
                 << deelnemer.get_tijd_fiets() << ' '
@@ -89,14 +105,29 @@ void load_data()
         in.ignore(numeric_limits<streamsize>::max(), '\n');
 
         int licentienummer;
-        string licentie_geldig_tot, licentie_type;
+        string licentie_geldig_tot, licentie_type, vereniging;
         in >> licentienummer;
         in.ignore();
         getline(in, licentie_geldig_tot);
         getline(in, licentie_type);
+        getline(in, vereniging);
+
+        size_t aantal_dopingcontroles;
+        in >> aantal_dopingcontroles;
+        in.ignore(numeric_limits<streamsize>::max(), '\n');
+        Licentie licentie(licentienummer, licentie_geldig_tot, licentie_type, vereniging);
+        for (size_t i = 0; i < aantal_dopingcontroles; ++i)
+        {
+            string controle_datum;
+            getline(in, controle_datum);
+            int doping_geconstateerd_int;
+            in >> doping_geconstateerd_int;
+            in.ignore(numeric_limits<streamsize>::max(), '\n');
+            licentie.voeg_dopingcontrole_toe({controle_datum, doping_geconstateerd_int != 0});
+        }
 
         Atleet nieuwe_atleet(voornaam, achternaam, geboortedatum, geslacht);
-        nieuwe_atleet.set_licentie(Licentie(licentienummer, licentie_geldig_tot, licentie_type));
+        nieuwe_atleet.set_licentie(licentie);
         atleten.push_back(nieuwe_atleet);
     }
 
@@ -128,14 +159,29 @@ void load_data()
             in.ignore(numeric_limits<streamsize>::max(), '\n');
 
             int licentienummer;
-            string licentie_geldig_tot, licentie_type;
+            string licentie_geldig_tot, licentie_type, vereniging;
             in >> licentienummer;
             in.ignore();
             getline(in, licentie_geldig_tot);
             getline(in, licentie_type);
+            getline(in, vereniging);
+
+            size_t aantal_dopingcontroles;
+            in >> aantal_dopingcontroles;
+            in.ignore(numeric_limits<streamsize>::max(), '\n');
+            Licentie licentie(licentienummer, licentie_geldig_tot, licentie_type, vereniging);
+            for (size_t i = 0; i < aantal_dopingcontroles; ++i)
+            {
+                string controle_datum;
+                getline(in, controle_datum);
+                int doping_geconstateerd_int;
+                in >> doping_geconstateerd_int;
+                in.ignore(numeric_limits<streamsize>::max(), '\n');
+                licentie.voeg_dopingcontrole_toe({controle_datum, doping_geconstateerd_int != 0});
+            }
 
             Atleet atleet(voornaam, achternaam, geboortedatum, geslacht);
-            atleet.set_licentie(Licentie(licentienummer, licentie_geldig_tot, licentie_type));
+            atleet.set_licentie(licentie);
 
             int tijd_zwem, tijd_fiets, tijd_loop, heeft_wissel1, tijd_wissel1, heeft_wissel2, tijd_wissel2;
             in >> tijd_zwem >> tijd_fiets >> tijd_loop >> heeft_wissel1 >> tijd_wissel1 >> heeft_wissel2 >> tijd_wissel2;
@@ -166,8 +212,9 @@ void print_keuzemenu()
     cout << "5. Deelnemer (atleet) inschrijven bij wedstrijd\n";
     cout << "6. Aantal deelnemers tonen\n";
     cout << "7. Licentie aan atleet koppelen\n";
-    cout << "8. Uitslagen tonen\n";
-    cout << "9. Stoppen\n> ";
+    cout << "8. Dopingcontrole toevoegen\n";
+    cout << "9. Uitslagen tonen\n";
+    cout << "10. Stoppen\n> ";
 }
 
 // datum helpers voor "dd-mm-jjjj"
@@ -602,10 +649,17 @@ int main() {
                     cin >> geldig_tot;
 
                     string licentie_type = "Daglicentie";
-                    if (keuze_licentie == 2) licentie_type = "Trainingslicentie";
-                    else if (keuze_licentie == 3) licentie_type = "Wedstrijdlicentie";
+                    string vereniging = "";
+                    if (keuze_licentie == 2) {
+                        licentie_type = "Trainingslicentie";
+                        cout << "Vereniging: ";
+                        cin >> vereniging;
+                    }
+                    else if (keuze_licentie == 3) {
+                        licentie_type = "Wedstrijdlicentie";
+                    }
 
-                    Licentie licentie(licentienummer, geldig_tot, licentie_type);
+                    Licentie licentie(licentienummer, geldig_tot, licentie_type, vereniging);
                     atleten[atleet_index].set_licentie(licentie);
                     cout << "Licentie gekoppeld aan atleet [" << atleet_index << "].\n";
                 }
@@ -615,10 +669,40 @@ int main() {
 
         else if (keuze == 8)
         {
+            if (atleten.empty()) {
+                cout << "Geen atleten.\n";
+            }
+            else {
+                lijst_atleten(atleten);
+                int atleet_index = kies_index((int)atleten.size(), "Kies atleet-index: ");
+                if (atleet_index == -1) {
+                    cout << "Ongeldige keuze.\n";
+                }
+                else {
+                    Licentie& licentie = atleten[atleet_index].get_licentie_ref();
+                    if (licentie.get_type() != "Wedstrijdlicentie") {
+                        cout << "Atleet heeft geen Wedstrijdlicentie.\n";
+                    }
+                    else {
+                        string controle_datum, antwoord;
+                        cout << "Datum (bv. 01-01-2024): ";
+                        cin >> controle_datum;
+                        cout << "Doping geconstateerd? (ja/nee): ";
+                        cin >> antwoord;
+                        bool doping_geconstateerd = (antwoord == "ja");
+                        licentie.voeg_dopingcontrole_toe({controle_datum, doping_geconstateerd});
+                        cout << "Dopingcontrole toegevoegd.\n";
+                    }
+                }
+            }
+        }
+
+        else if (keuze == 9)
+        {
             toon_uitslag_van_wedstrijd(wedstrijden);
         }
 
-        else if (keuze == 9) 
+        else if (keuze == 10)
         {
             doorgaan = false;
         }
@@ -644,3 +728,4 @@ int main() {
 //   4. Use the Error List window to view errors
 //   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
 //   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+

@@ -1,9 +1,9 @@
 #include "Atleet.h"
 
 Atleet::Atleet(string voornaam, string achternaam, string geboortedatum, char geslacht)
-    : voornaam(voornaam), achternaam(achternaam), geboortedatum(geboortedatum), geslacht(geslacht), licentie(Licentie(0, "", "" )){}
+    : voornaam(voornaam), achternaam(achternaam), geboortedatum(geboortedatum), geslacht(geslacht), licentie(Licentie(0, "", "", "")) {}
 
-Atleet::Atleet() : geslacht(' '), licentie(Licentie(0, "", "")) {}
+Atleet::Atleet() : geslacht(' '), licentie(Licentie(0, "", "", "")) {}
 
 //Setters
 void Atleet::set_voornaam(string nieuwe_voornaam)
@@ -26,7 +26,7 @@ void Atleet::set_geslacht(char nieuw_geslacht)
     geslacht = nieuw_geslacht;
 }
 
-void Atleet::set_licentie(const Licentie& nieuwe_licentie) 
+void Atleet::set_licentie(const Licentie& nieuwe_licentie)
 {
     licentie = nieuwe_licentie;
 }
@@ -52,7 +52,13 @@ char Atleet::get_geslacht() const
     return geslacht;
 }
 
-Licentie Atleet::get_licentie() const 
+Licentie Atleet::get_licentie() const
 {
     return licentie;
 }
+
+Licentie& Atleet::get_licentie_ref()
+{
+    return licentie;
+}
+
