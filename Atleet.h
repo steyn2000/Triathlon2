@@ -10,7 +10,7 @@ private:
     string achternaam;
     string geboortedatum;
     char geslacht;
-    Licentie licentie{0, "", ""}; // atleet start zonder ingevulde licentie
+    Licentie licentie{0, "", "", ""}; // atleet start zonder ingevulde licentie
 
 public:
     Atleet();
@@ -29,4 +29,5 @@ public:
     string get_geboortedatum() const;
     char get_geslacht() const;
     Licentie get_licentie() const;
+    Licentie& get_licentie_ref();
 };
