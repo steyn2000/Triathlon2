@@ -1,1 +1,2 @@
 C:\Users\steyn\source\repos\Eindopdracht_Triathlon_V2\x64\Debug\Eindopdracht_Triathlon_V2.exe
+C:\Users\steyn\Documents\GitHub\Triathlon\x64\Debug\Eindopdracht_Triathlon_V2.exe

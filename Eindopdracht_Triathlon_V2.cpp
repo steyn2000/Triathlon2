@@ -21,37 +21,37 @@ const string DATA_BESTAND = "triathlon_data.txt";
 
 void save_data()
 {
-    ofstream out(DATA_BESTAND);
-    if (!out) return;
+    ofstream bestand(DATA_BESTAND);
+    if (!bestand) return;
 
-    out << atleten.size() << '\n';
-    for (const auto& a : atleten)
+    bestand << atleten.size() << '\n';
+    for (const auto& atleten : atleten)
     {
-        const Licentie& l = a.get_licentie();
-        out << a.get_voornaam() << '\n'
-            << a.get_achternaam() << '\n'
-            << a.get_geboortedatum() << '\n'
-            << a.get_geslacht() << '\n'
-            << l.get_nummer() << '\n'
-            << l.get_geldig_tot() << '\n'
-            << l.get_type() << '\n';
+        const Licentie& licentie = atleten.get_licentie();
+        bestand << atleten.get_voornaam() << '\n'
+            << atleten.get_achternaam() << '\n'
+            << atleten.get_geboortedatum() << '\n'
+            << atleten.get_geslacht() << '\n'
+            << licentie.get_nummer() << '\n'
+            << licentie.get_geldig_tot() << '\n'
+            << licentie.get_type() << '\n';
     }
 
-    out << wedstrijden.size() << '\n';
-    for (const auto& w : wedstrijden)
+    bestand << wedstrijden.size() << '\n';
+    for (const auto& wedstrijden : wedstrijden)
     {
-        out << w.get_naam() << '\n'
-            << w.get_datum() << '\n'
-            << w.get_is_nk() << '\n'
-            << w.get_met_wissels() << '\n';
+        bestand << wedstrijden.get_naam() << '\n'
+            << wedstrijden.get_datum() << '\n'
+            << wedstrijden.get_is_nk() << '\n'
+            << wedstrijden.get_met_wissels() << '\n';
 
-        const auto& ds = w.get_deelnemers();
-        out << ds.size() << '\n';
+        const auto& ds = wedstrijden.get_deelnemers();
+        bestand << ds.size() << '\n';
         for (const auto& d : ds)
         {
             const Atleet& a = d.get_atleet();
             const Licentie& l = a.get_licentie();
-            out << a.get_voornaam() << '\n'
+            bestand << a.get_voornaam() << '\n'
                 << a.get_achternaam() << '\n'
                 << a.get_geboortedatum() << '\n'
                 << a.get_geslacht() << '\n'
@@ -59,7 +59,7 @@ void save_data()
                 << l.get_geldig_tot() << '\n'
                 << l.get_type() << '\n';
 
-            out << d.get_tijd_zwem() << ' '
+            bestand << d.get_tijd_zwem() << ' '
                 << d.get_tijd_fiets() << ' '
                 << d.get_tijd_loop() << ' '
                 << d.get_heeft_t1() << ' '
@@ -151,11 +151,13 @@ void load_data()
     }
 }
 
-void print_welkom() {
+void print_welkom() 
+{
     cout << "~~ Welkom bij het Triathlon organisatiesysteem! ~~\n";
 }
 
-void print_keuzemenu() {
+void print_keuzemenu() 
+{
     cout << "\nMaak een keuze:\n";
     cout << "1. Wedstrijd aanmaken\n";
     cout << "2. Toon alle wedstrijden\n";
@@ -167,13 +169,6 @@ void print_keuzemenu() {
     cout << "8. Uitslagen tonen\n";
     cout << "9. Stoppen\n> ";
 }
-
-
-
-
-
-
-
 
 // datum helpers voor "dd-mm-jjjj"
 static int get_dag(const string& datum) 
@@ -189,11 +184,12 @@ static int get_jaar(const string& datum)
     return stoi(datum.substr(6, 4)); 
 }
 
-int leeftijd_op_datum(const string& geboortedatum, const string& datum) {
-    int gb_d = get_dag(geboortedatum), gb_m = get_maand(geboortedatum), gb_j = get_jaar(geboortedatum);
+int leeftijd_op_datum(const string& geboortedatum, const string& datum) 
+{
+    int geboortedatum_dag = get_dag(geboortedatum), geboortedatum_maand = get_maand(geboortedatum), geboortedatum_jaar = get_jaar(geboortedatum);
     int wd_d = get_dag(datum), wd_m = get_maand(datum), wd_j = get_jaar(datum);
-    int leeftijd = wd_j - gb_j;
-    if (wd_m < gb_m || (wd_m == gb_m && wd_d < gb_d)) leeftijd -= 1; // verjaardag nog niet geweest
+    int leeftijd = wd_j - geboortedatum_jaar;
+    if (wd_m < geboortedatum_maand || (wd_m == geboortedatum_maand && wd_d < geboortedatum_dag)) leeftijd -= 1; // verjaardag nog niet geweest
     return leeftijd;
 }
 
@@ -220,19 +216,6 @@ string categorie_van(const Atleet& atleet, const string& wedstrijddatum)
 {
     return categorie_van_leeftijd(leeftijd_op_datum(atleet.get_geboortedatum(), wedstrijddatum));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int kies_index(int max_index, const string& prompt) 
 {
@@ -278,7 +261,8 @@ void lijst_wedstrijden(const vector<Wedstrijd>& lijst)
     }
 }
 
-Atleet invoer_atleet() {
+Atleet invoer_atleet() 
+{
     string voornaam, achternaam, geboortedatum;
     char geslacht;
 
@@ -303,7 +287,8 @@ string format_tijd(int seconden)
 }
 
 // Functie voor het tonen van de uitslagen
-void toon_uitslag_van_wedstrijd(const std::vector<Wedstrijd>& wedstrijden) {
+void toon_uitslag_van_wedstrijd(const vector<Wedstrijd>& wedstrijden) 
+{
     if (wedstrijden.empty()) 
     {
         cout << "Geen wedstrijden.\n";
@@ -311,111 +296,141 @@ void toon_uitslag_van_wedstrijd(const std::vector<Wedstrijd>& wedstrijden) {
     }
 
     lijst_wedstrijden(wedstrijden);
-    int wi = kies_index((int)wedstrijden.size(), "Kies wedstrijd-index: ");
-    if (wi == -1) 
+    int wedstrijd_index = kies_index((int)wedstrijden.size(), "Kies wedstrijd-index: ");
+    if (wedstrijd_index == -1) 
     {
         cout << "Ongeldige keuze.\n";
         return;
     }
 
-    const Wedstrijd& wedstrijd= wedstrijden[wi];
+    const Wedstrijd& wedstrijd= wedstrijden[wedstrijd_index];
     auto uitslag = wedstrijd.deelnemer_lijst_gesorteerd(); // gesorteerd op totale tijd
     if (uitslag.empty()) 
     {
-        std::cout << "Geen deelnemers voor deze wedstrijd.\n";
+        cout << "Geen deelnemers voor deze wedstrijd.\n";
         return;
     }
 
     bool met_wissels = wedstrijd.get_met_wissels();
 
     // --------- TOTAAL ---------
-    std::cout << "\nUitslag: " << wedstrijd.get_naam() << " (" << wedstrijd.get_datum() << ")\n";
-    std::cout << "Pos  Naam                     Zwem       ";
-    if (met_wissels) std::cout << "T1         ";
-    std::cout << "Fiets      ";
-    if (met_wissels) std::cout << "T2         ";
-    std::cout << "Loop       Totaal\n";
+    cout << "\nUitslag: " << wedstrijd.get_naam() << " (" << wedstrijd.get_datum() << ")\n";
+    cout << "Pos  Naam                     Zwem       ";
 
-    std::cout << "---- -----------------------  ---------  ";
-    if (met_wissels) std::cout << "---------  ";
-    std::cout << "---------  ";
-    if (met_wissels) std::cout << "---------  ";
-    std::cout << "---------  ---------\n";
+    if (met_wissels) 
+        cout << "T1         ";
+        cout << "Fiets      ";
 
-    for (size_t i = 0; i < uitslag.size(); ++i) {
+    if (met_wissels)
+        cout << "T2         ";
+        cout << "Loop       Totaal\n";
+        cout << "---- -----------------------  ----------  ";
+
+    if (met_wissels)
+        cout << "----------  ";
+        cout << "----------  ";
+
+    if (met_wissels)
+        cout << "----------  ";
+        cout << "----------  ----------\n";
+
+    for (size_t i = 0; i < uitslag.size(); ++i) 
+    {
         const Deelnemer& deelnemer = uitslag[i];
         const Atleet& atleet = deelnemer.get_atleet();
-        std::string naam = atleet.get_voornaam() + " " + atleet.get_achternaam();
+        string naam = atleet.get_voornaam() + " " + atleet.get_achternaam();
+
         if (naam.size() > 23) naam = naam.substr(0, 23);
+            cout << (i + 1);
 
-        std::cout << (i + 1);
-        if (i + 1 < 10) std::cout << "   "; else std::cout << "  ";
+        if (i + 1 < 10) 
+            cout << "   ";
 
-        std::cout << naam;
-        if (naam.size() < 23) std::cout << std::string(23 - naam.size(), ' ');
+        else 
+            cout << "  ";
+            cout << naam;
 
-        std::cout << "   " << format_tijd(deelnemer.get_tijd_zwem());
-        if (met_wissels) std::cout << "   " << format_tijd(deelnemer.get_t1());
-        std::cout << "   " << format_tijd(deelnemer.get_tijd_fiets());
-        if (met_wissels) std::cout << "   " << format_tijd(deelnemer.get_t2());
-        std::cout << "   " << format_tijd(deelnemer.get_tijd_loop());
-        std::cout << "   " << format_tijd(deelnemer.totale_tijd()) << "\n";
+        if (naam.size() < 23) 
+            cout << string(23 - naam.size(), ' ');
+            cout << "    " << format_tijd(deelnemer.get_tijd_zwem());
+
+        if (met_wissels) 
+            cout << "    " << format_tijd(deelnemer.get_t1());
+            cout << "    " << format_tijd(deelnemer.get_tijd_fiets());
+
+        if (met_wissels) 
+            cout << "    " << format_tijd(deelnemer.get_t2());
+            cout << "    " << format_tijd(deelnemer.get_tijd_loop());
+            cout << "    " << format_tijd(deelnemer.totale_tijd()) << "\n";
     }
 
     // --------- PER CATEGORIE ---------
-    // groepeer deelnemers per categorie
-    std::map<std::string, std::vector<Deelnemer>> groepen;
-    for (const auto& d : uitslag) {
-        const Atleet& a = d.get_atleet();
-        std::string cat = categorie_van(a, wedstrijd.get_datum());
-        groepen[cat].push_back(d);
+    // groepeert deelnemers per categorie
+    map<string, vector<Deelnemer>> groepen;
+    for (const auto& deelnemer : uitslag) 
+    {
+        const Atleet& atleet = deelnemer.get_atleet();
+        string cat = categorie_van(atleet, wedstrijd.get_datum());
+        groepen[cat].push_back(deelnemer);
     }
 
-    std::vector<std::string> volgorde = { "<13","13-17","18-35","36-45","46-55","56-65","66+" };
+    vector<string> volgorde = { "<13","13-17","18-35","36-45","46-55","56-65","66+" };
 
-    for (const auto& cat : volgorde) {
+    for (const auto& cat : volgorde) 
+    {
         auto it = groepen.find(cat);
         if (it == groepen.end() || it->second.empty()) continue;
 
         auto& lijst = it->second; // al gesorteerd door kopie uit 'uitslag', maar safe nog eens:
-        std::sort(lijst.begin(), lijst.end(),
+        sort(lijst.begin(), lijst.end(),
                   [](const Deelnemer& e1, const Deelnemer& e2){ return e1.totale_tijd() < e2.totale_tijd(); });
 
-        std::cout << "\n[" << cat << "]\n";
-        std::cout << "Pos  Naam                             Zwem       ";
-        if (met_wissels) std::cout << "T1         ";
-        std::cout << "Fiets      ";
-        if (met_wissels) std::cout << "T2         ";
-        std::cout << "Loop       Totaal\n";
+        cout << "\n[" << cat << "]\n";
+        cout << "Pos  Naam                             Zwem       ";
 
-        std::cout << "---- --------------------------------  ---------  ";
-        if (met_wissels) std::cout << "---------  ";
-        std::cout << "---------  ";
-        if (met_wissels) std::cout << "---------  ";
-        std::cout << "---------  ---------\n";
+        if (met_wissels) 
+            cout << "T1         ";
+            cout << "Fiets      ";
+        
+        if (met_wissels) 
+            cout << "T2         ";
+            cout << "Loop       Totaal\n";
+            cout << "---- --------------------------------  ---------  ";
+
+        if (met_wissels) 
+            cout << "---------  ";
+            cout << "---------  ";
+
+        if (met_wissels)
+            cout << "---------  ";
+            cout << "---------  ---------\n";
 
         for (size_t i = 0; i < lijst.size(); ++i) {
             const Deelnemer& deelnemer = lijst[i];
             const Atleet& atleet = deelnemer.get_atleet();
-            std::string naam = atleet.get_voornaam() + " " + atleet.get_achternaam();
+            string naam = atleet.get_voornaam() + " " + atleet.get_achternaam();
             if (naam.size() > 32) naam = naam.substr(0, 32);
+                cout << (i + 1);
 
-            std::cout << (i + 1);
-            if (i + 1 < 10) std::cout << "   "; else std::cout << "  ";
+            if (i + 1 < 10) 
+                cout << "   ";
+            else 
+                cout << "  ";
+                cout << naam;
 
-            std::cout << naam;
-            if (naam.size() < 32) std::cout << std::string(32 - naam.size(), ' ');
+            if (naam.size() < 32) cout << string(32 - naam.size(), ' ');
+            cout << "  " << format_tijd(deelnemer.get_tijd_zwem());
 
-            std::cout << "  " << format_tijd(deelnemer.get_tijd_zwem());
-            if (met_wissels) std::cout << "   " << format_tijd(deelnemer.get_t1());
-            std::cout << "   " << format_tijd(deelnemer.get_tijd_fiets());
-            if (met_wissels) std::cout << "   " << format_tijd(deelnemer.get_t2());
-            std::cout << "   " << format_tijd(deelnemer.get_tijd_loop());
-            std::cout << "   " << format_tijd(deelnemer.totale_tijd()) << "\n";
+            if (met_wissels)
+                cout << "   " << format_tijd(deelnemer.get_t1());
+                cout << "   " << format_tijd(deelnemer.get_tijd_fiets());
+            if (met_wissels)
+                cout << "   " << format_tijd(deelnemer.get_t2());
+                cout << "   " << format_tijd(deelnemer.get_tijd_loop());
+                cout << "   " << format_tijd(deelnemer.totale_tijd()) << "\n";
         }
     }
-
-    std::cout << std::endl;
+    cout << endl;
 }
 
 int main() {
