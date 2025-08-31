@@ -11,7 +11,7 @@ private:
     string naam;
     string datum; // voor nu simpel als string "dd-mm-jjjj"
 
-    bool is_wedstrijd_NK
+    bool is_nk
     {
         false
     };
@@ -25,7 +25,7 @@ private:
 
 public:
     Wedstrijd() = default;
-    Wedstrijd(string wedstrijd_naam, string wedstrijd_datum, bool is_NK, bool heeft_wissels);
+    Wedstrijd(string wedstrijd_naam, string wedstrijd_datum, bool is_nk, bool heeft_wissels);
 
     // basisacties
     void voeg_deelnemer_toe(const Deelnemer& nieuwe_deelnemer);
