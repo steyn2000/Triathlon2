@@ -214,7 +214,7 @@ void print_keuzemenu()
     cout << "7. Licentie aan atleet koppelen\n";
     cout << "8. Dopingcontrole toevoegen\n";
     cout << "9. Uitslagen tonen\n";
-    cout << "10. Stoppen\n> ";
+    cout << "10. Stoppen\n> " << flush;
 }
 
 // datum helpers voor "dd-mm-jjjj"
