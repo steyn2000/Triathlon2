@@ -214,7 +214,7 @@ void print_keuzemenu()
     cout << "7. Licentie aan atleet koppelen\n";
     cout << "8. Dopingcontrole toevoegen\n";
     cout << "9. Uitslagen tonen\n";
-    cout << "10. Stoppen\n> " << flush;
+    cout << "10. Stoppen\n> " << endl; // De terminal bleef zwart, menu niet zichtbaar terwijl de code wel leek te werken
 }
 
 // datum helpers voor "dd-mm-jjjj"
@@ -488,8 +488,11 @@ int main() {
     while (doorgaan) 
     {
         print_keuzemenu();
+        cout.flush();           // force output
+        cerr << "DEBUG: menu printed\n"; // goes straight to console without buffering
         int keuze;
         cin >> keuze;
+
 
         if (keuze == 1)
         {
