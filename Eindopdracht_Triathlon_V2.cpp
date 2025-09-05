@@ -497,7 +497,7 @@ int main() {
         if (keuze == 1)
         {
             string naam, datum;
-            string is_nk_keuze, wissels_keuze;
+            int is_nk_keuze, wissels_keuze;
 
             cout << "Naam wedstrijd: ";
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -506,17 +506,14 @@ int main() {
             cout << "Datum (bv. 15-06-2024): ";
             getline(cin, datum);
 
-            cout << "Is NK? (ja/nee): ";
+            cout << "Is NK? (0/1): ";
             cin >> is_nk_keuze;
 
-            cout << "Wisseltijden registreren? (ja/nee): ";
+            cout << "Wisseltijden registreren? (0/1): ";
             cin >> wissels_keuze;
 
-            bool is_nk = (is_nk_keuze == "ja");
-            bool heeft_wissels = (wissels_keuze == "ja");
-
             // nieuw object maken en toevoegen aan de vector
-            Wedstrijd nieuwe_wedstrijd(naam, datum, is_nk, heeft_wissels);
+            Wedstrijd nieuwe_wedstrijd(naam, datum, is_nk_keuze != 0, wissels_keuze != 0);
             wedstrijden.push_back(nieuwe_wedstrijd);
 
             cout << "Wedstrijd aangemaakt met index ["
